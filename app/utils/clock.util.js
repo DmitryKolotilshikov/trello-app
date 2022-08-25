@@ -12,7 +12,7 @@ export const clock = () => {
     if (minutes < 10) minutes = '0' + minutes;
     if (seconds < 10) seconds = '0' + seconds;
 
-    clockLayout.innerHTML('afterbegin', `
+    clockLayout.insertHTML('afterbegin', `
         ${hours}:${minutes}:${seconds}
     `);
 }

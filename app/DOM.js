@@ -23,7 +23,7 @@ export class DOM {
         this.$el.removeEventListener(type, callback);
     }
 
-    innerHTML(place, html) {
+    insertHTML(place, html) {
         this.$el.insertAdjacentHTML(place, html);
     }
 
