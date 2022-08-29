@@ -1,4 +1,5 @@
 import { Desks } from './Desks.js';
+import { DesksLogic } from './DesksLogic.js';
 import { clock } from './utils/clock.util.js';
 
 
