@@ -1,9 +1,11 @@
+import { Desks } from './Desks.js';
 import { clock } from './utils/clock.util.js';
-import { API } from './API.js';
+
 
 clock();
 setInterval(clock, 1000);
-// new Desk(1).initialRender();
+
+new Desks(1).initialRender();
 
 // const user = {
 //     avatar: 'https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/594.jpg',
@@ -42,4 +44,4 @@ setInterval(clock, 1000);
 //     }
 // }
 
-// API.putUser(2, user)
+// API.getUsers()
