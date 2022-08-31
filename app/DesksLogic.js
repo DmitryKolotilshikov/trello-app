@@ -1,20 +1,47 @@
+import { API } from "./API.js";
+import { ERROR_WHILE_MOVING, ERROR_WHILE_REMOVING } from "./constants.js";
 import { $ } from "./DOM.js";
-import { 
-    createContentDesk, 
-    createDeskCount, 
+import {
+    createContentDesk,
+    createDeskCount,
     createDeskTemplate,
-    doneContentDesk, 
-    doneDeskCount, 
-    doneDeskTemplate, 
+    doneContentDesk,
+    doneDeskCount,
+    doneDeskTemplate,
     progressContentDesk,
-    progressDeskCount, 
-    progressDeskTemplate 
+    progressDeskCount,
+    progressDeskTemplate
 } from "./elements.js";
 
 export class DesksLogic {
-    constructor(user) {
+    constructor(user, fetcher, appendDesks) {
         this.user = user;
         this.desks = user.desks;
+        this.ID = user.id;
+        this.fetcher = fetcher;
+        this.appendDesks = appendDesks;
+    }
+
+    applyContent(el, template) {
+        const title = template.find('[data-todo-title]');
+        title.text(el.title);
+
+        const desc = template.find('[data-todo-desc-content]');
+        desc.text(el.desc);
+
+        const userName = template.find('[data-todo-user]');
+        userName.text(this.user.name);
+
+        const todoDate = template.find('[data-todo-date]');
+        todoDate.text(el.date);
+    }
+
+    putFetcher(desks, message = '') {
+        this.fetcher(
+            () => API.putUser(this.ID, { desks }),
+            this.appendDesks,
+            message
+        )
     }
 
     appendCreateTodos() {
@@ -24,17 +51,21 @@ export class DesksLogic {
 
         create.forEach(el => {
             const createTemplate = $(document.importNode(createDeskTemplate.$el.content, true));
-            const title = createTemplate.find('[data-todo-title]');
-            title.text(el.title);
+            this.applyContent(el, createTemplate);
 
-            const desc = createTemplate.find('[data-todo-desc-content]');
-            desc.text(el.desc);
+            const btnMove = createTemplate.find('[data-todo-btn-move]');
+            btnMove.addEvent('click', () => {
+                const create = this.desks.create
+                    .filter(todo => todo.id !== el.id);
+                const progress = [...this.desks.progress, el];
 
-            const userName = createTemplate.find('[data-todo-user]');
-            userName.text(this.user.name);
+                const newDesks = { ...this.desks, create, progress };
 
-            const todoDate = createTemplate.find('[data-todo-date]');
-            todoDate.text(el.date);
+                this.putFetcher(newDesks, ERROR_WHILE_MOVING);
+            });
+
+            const btnRemove = createTemplate.find('[ data-todo-btn-remove]');
+            btnRemove.addEvent('click', () => this.removeTodo('create', el));
 
             createContentDesk.append(createTemplate);
         })
@@ -47,17 +78,31 @@ export class DesksLogic {
 
         progress.forEach(el => {
             const progressTemplate = $(document.importNode(progressDeskTemplate.$el.content, true));
-            const title = progressTemplate.find('[data-todo-title]');
-            title.text(el.title);
+            this.applyContent(el, progressTemplate);
 
-            const desc = progressTemplate.find('[data-todo-desc-content]');
-            desc.text(el.desc);
+            const btnMove = progressTemplate.find('[data-todo-btn-move]');
+            btnMove.addEvent('click', () => {
+                const progress = this.desks.progress
+                    .filter(todo => todo.id !== el.id);
+                const done = [...this.desks.done, el];
 
-            const userName = progressTemplate.find('[data-todo-user]');
-            userName.text(this.user.name);
+                const newDesks = { ...this.desks, progress, done };
 
-            const todoDate = progressTemplate.find('[data-todo-date]');
-            todoDate.text(el.date);
+                this.putFetcher(newDesks, ERROR_WHILE_MOVING);
+            });
+
+            const btnBack = progressTemplate.find('[data-todo-btn-back]');
+            btnBack.addEvent('click', () => {
+                const progress = this.desks.progress
+                    .filter(todo => todo.id !== el.id);
+                const create = [...this.desks.create, el];
+                const newDesks = { ...this.desks, create, progress };
+
+                this.putFetcher(newDesks, ERROR_WHILE_MOVING);
+            });
+
+            const btnRemove = progressTemplate.find('[ data-todo-btn-remove]');
+            btnRemove.addEvent('click', () => this.removeTodo('progress', el));
 
             progressContentDesk.append(progressTemplate);
         })
@@ -70,19 +115,19 @@ export class DesksLogic {
 
         done.forEach(el => {
             const doneTemplate = $(document.importNode(doneDeskTemplate.$el.content, true));
-            const title = doneTemplate.find('[data-todo-title]');
-            title.text(el.title);
+            this.applyContent(el, doneTemplate);
 
-            const desc = doneTemplate.find('[data-todo-desc-content]');
-            desc.text(el.desc);
-
-            const userName = doneTemplate.find('[data-todo-user]');
-            userName.text(this.user.name);
-
-            const todoDate = doneTemplate.find('[data-todo-date]');
-            todoDate.text(el.date);
+            const btnRemove = doneTemplate.find('[ data-todo-btn-remove]');
+            btnRemove.addEvent('click', () => this.removeTodo('done', el));
 
             doneContentDesk.append(doneTemplate);
         })
+    }
+
+    removeTodo(deskType, el) {
+        const newTodo = this.desks[deskType]
+            .filter(todo => todo.id !== el.id);
+        const newDesks = { ...this.desks, [deskType]:  newTodo };
+        this.putFetcher(newDesks, ERROR_WHILE_REMOVING);
     }
 }

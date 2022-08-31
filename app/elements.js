@@ -1,5 +1,7 @@
 import { $ } from './DOM.js';
 
+const root = $('#root');
+
 const clockLayout = $('[data-header-clock]');
 const createDeskTemplate = $('[data-create-todo-template]');
 const progressDeskTemplate = $('[data-progress-todo-template]');
@@ -14,6 +16,7 @@ const progressContentDesk = $('[data-progress-desk-content]');
 const doneContentDesk = $('[data-done-desk-content]');
 
 export {
+    root,
     clockLayout,
     createDeskTemplate,
     progressDeskTemplate,

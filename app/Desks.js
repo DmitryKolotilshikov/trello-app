@@ -1,8 +1,13 @@
 import { API } from "./API.js"
 import { DesksLogic } from "./DesksLogic.js";
-import { $ } from "./DOM.js";
-import { createContentDesk, createDeskCount, createDeskTemplate, doneContentDesk, doneDeskCount, progressContentDesk, progressDeskCount, progressDeskTemplate } from "./elements.js";
+import { 
+    createContentDesk,
+    progressContentDesk,
+    doneContentDesk,
+} from "./elements.js";
 import { User } from "./User.js";
+import { ERROR_FETCHING_USER } from './constants.js';
+
 
 export class Desks extends User {
     constructor(userId) {
@@ -10,11 +15,21 @@ export class Desks extends User {
     }
 
     deskLogic() {
-        return new DesksLogic(this.user);
+        return new DesksLogic(
+            this.user, 
+            this.fetcher.bind(this),
+            this.appendDesks.bind(this)
+            );
+    }
+
+    clearDesks() {
+        createContentDesk.clear();
+        progressContentDesk.clear();
+        doneContentDesk.clear();
     }
 
     appendDesks() {
-        createContentDesk.clear();
+        this.clearDesks();
 
         const $logic = this.deskLogic();
 
@@ -42,7 +57,8 @@ export class Desks extends User {
     initialRender() {
         this.fetcher(
             () => API.getUser(this.userID), 
-            this.appendDesks.bind(this)
+            this.appendDesks.bind(this),
+            ERROR_FETCHING_USER
             )
     }
 }
