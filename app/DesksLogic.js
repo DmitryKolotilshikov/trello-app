@@ -48,9 +48,9 @@ export class DesksLogic {
     appendCreateTodos() {
         const { create } = this.desks;
 
-        createDeskCount.text(create.length);
+        createDeskCount.text(create?.length);
 
-        if (create.length) {
+        if (create?.length) {
             create.forEach(el => {
                 const createTemplate = $(document.importNode(createDeskTemplate.$el.content, true));
                 this.applyContent(el, createTemplate);
@@ -102,9 +102,9 @@ export class DesksLogic {
     appendProgressTodos() {
         const { progress } = this.desks;
 
-        progressDeskCount.text(progress.length);
+        progressDeskCount.text(progress?.length);
 
-        if (progress.length) {
+        if (progress?.length) {
             progress.forEach(el => {
                 const progressTemplate = $(document.importNode(progressDeskTemplate.$el.content, true));
                 this.applyContent(el, progressTemplate);
@@ -143,9 +143,9 @@ export class DesksLogic {
     appendDoneTodos() {
         const { done } = this.desks;
 
-        doneDeskCount.text(done.length);
+        doneDeskCount.text(done?.length);
 
-        if (done.length) {
+        if (done?.length) {
             done.forEach(el => {
                 const doneTemplate = $(document.importNode(doneDeskTemplate.$el.content, true));
                 this.applyContent(el, doneTemplate);
@@ -176,9 +176,15 @@ export class DesksLogic {
     }
 
     addNewTodo() {
+        const limit = 10;
+        if (this.desks.create.length >= limit) {
+            Modal.addWarningLimitLayout(limit);
+            return;
+        }
+
         const createTodo = (newTodo) => {
             const create = [...this.desks.create, newTodo];
-            const newDesks = { ...this.desks, create }
+            const newDesks = { ...this.desks, create };
             this.putFetcher(newDesks, ERROR_WHILE_CREATING, true);
         }
         Modal.addNewTodoLayout(createTodo);

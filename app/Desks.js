@@ -1,6 +1,6 @@
 import { API } from "./API.js"
 import { DesksLogic } from "./DesksLogic.js";
-import { 
+import {
     createContentDesk,
     progressContentDesk,
     doneContentDesk,
@@ -16,14 +16,22 @@ import { ERROR_FETCHING_USER } from './constants.js';
 export class Desks extends User {
     constructor(userId) {
         super(userId);
+
+        btnRemoveAll.addEvent('click', () => {
+            this.deskLogic().removeAll();
+        })
+
+        btnAddTodo.addEvent('click', () => {
+            this.deskLogic().addNewTodo();
+        })
     }
 
     deskLogic() {
         return new DesksLogic(
-            this.user, 
+            this.user,
             this.fetcher.bind(this),
             this.appendDesks.bind(this)
-            );
+        );
     }
 
     clearDesks() {
@@ -44,19 +52,11 @@ export class Desks extends User {
         $logic.appendDoneTodos();
     }
 
-    initialRender() {
+    render(id = this.userID) {
         this.fetcher(
-            () => API.getUser(this.userID), 
+            () => API.getUser(id),
             this.appendDesks.bind(this),
             ERROR_FETCHING_USER
-            )
-
-        btnRemoveAll.addEvent('click', () => {
-            this.deskLogic().removeAll();
-        })
-
-        btnAddTodo.addEvent('click', () => {
-            this.deskLogic().addNewTodo();
-        })
+        )
     }
 }

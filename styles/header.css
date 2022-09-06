@@ -12,10 +12,11 @@
     box-shadow: var(--shadow-1);
 }
 
-.header__logo {
+.header__title {
     color: var(--main-color-white);
     font-size: var(--font-sz-5);
     text-shadow: var(--shadow-1);
+    cursor: pointer;
 }
 
 .header__avatar {

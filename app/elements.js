@@ -1,6 +1,10 @@
+import { Desks } from './Desks.js';
 import { $ } from './DOM.js';
+import { Modal } from './Modal.js';
 
 const root = $('#root');
+
+const headerTitle = $('[data-header-title]');
 
 const clockLayout = $('[data-header-clock]');
 const createDeskTemplate = $('[data-create-todo-template]');
@@ -23,6 +27,7 @@ const headerAvatar = $('[data-header_avatar]');
 
 export {
     root,
+    headerTitle,
     clockLayout,
     createDeskTemplate,
     progressDeskTemplate,

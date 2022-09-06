@@ -1,4 +1,5 @@
-.modal__new-todo {
+.modal__new-todo,
+.user-selection {
     width: min(450px, 90%);
     border-radius: 5px;
     padding: 1em;
@@ -42,4 +43,9 @@
 .new-todo__cancel:hover,
 .new-todo__add:hover {
     opacity: .8;
+}
+
+.user-selection {
+    height: 150px;
+    justify-content: flex-start;
 }
