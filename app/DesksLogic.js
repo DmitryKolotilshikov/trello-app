@@ -1,6 +1,6 @@
 import { API } from "./API.js";
 import { Modal } from "./Modal.js";
-import { ERROR_WHILE_MOVING, ERROR_WHILE_REMOVING } from "./constants.js";
+import { ERROR_WHILE_CREATING, ERROR_WHILE_EDITING, ERROR_WHILE_MOVING, ERROR_WHILE_REMOVING } from "./constants.js";
 import { $ } from "./DOM.js";
 import {
     createContentDesk,
@@ -37,11 +37,11 @@ export class DesksLogic {
         todoDate.text(el.date);
     }
 
-    putFetcher(desks, message = '') {
+    putFetcher(desks, errorMessage = '', isLoader = false) {
         this.fetcher(
-            () => API.putUser(this.ID, { desks }),
+            () => API.putUser(this.ID, { desks }, isLoader),
             this.appendDesks,
-            message
+            errorMessage
         )
     }
 
@@ -72,8 +72,25 @@ export class DesksLogic {
                     this.putFetcher(newDesks, ERROR_WHILE_MOVING);
                 });
 
-                const btnRemove = createTemplate.find('[ data-todo-btn-remove]');
+                const btnRemove = createTemplate.find('[data-todo-btn-remove]');
                 btnRemove.addEvent('click', () => this.removeTodo('create', el));
+
+                const btnEdit = createTemplate.find('[data-todo-btn-edit]');
+                btnEdit.addEvent('click', () => {
+                    const editTodo = (newEl) => {
+                        const create = [...this.desks.create]
+                            .map(todo => {
+                                if (todo.id === el.id) {
+                                    return newEl
+                                }
+                                return todo;
+                            });
+
+                        const newDesks = { ...this.desks, create }
+                        this.putFetcher(newDesks, ERROR_WHILE_EDITING, true);
+                    }
+                    Modal.addEditTodoLayout(el, editTodo);
+                })
 
                 createContentDesk.append(createTemplate);
             })
@@ -132,10 +149,10 @@ export class DesksLogic {
             done.forEach(el => {
                 const doneTemplate = $(document.importNode(doneDeskTemplate.$el.content, true));
                 this.applyContent(el, doneTemplate);
-    
+
                 const btnRemove = doneTemplate.find('[ data-todo-btn-remove]');
                 btnRemove.addEvent('click', () => this.removeTodo('done', el));
-    
+
                 doneContentDesk.append(doneTemplate);
             })
         } else {
@@ -146,15 +163,24 @@ export class DesksLogic {
     removeTodo(deskType, el) {
         const newTodo = this.desks[deskType]
             .filter(todo => todo.id !== el.id);
-        const newDesks = { ...this.desks, [deskType]:  newTodo };
+        const newDesks = { ...this.desks, [deskType]: newTodo };
         this.putFetcher(newDesks, ERROR_WHILE_REMOVING);
     }
 
     removeAll() {
         const remove = () => {
-            const newDesks = {...this.desks, done: [] }
+            const newDesks = { ...this.desks, done: [] };
             this.putFetcher(newDesks, ERROR_WHILE_REMOVING);
         }
         Modal.addWarningRemoveLayout(remove);
+    }
+
+    addNewTodo() {
+        const createTodo = (newTodo) => {
+            const create = [...this.desks.create, newTodo];
+            const newDesks = { ...this.desks, create }
+            this.putFetcher(newDesks, ERROR_WHILE_CREATING, true);
+        }
+        Modal.addNewTodoLayout(createTodo);
     }
 }
